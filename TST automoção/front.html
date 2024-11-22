@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Automatização</title>
+    <style>
+        form {
+            text-align: center;
+        }
+        #box, #box2 {
+            border-radius: 2px;
+            width: 35%;
+            padding: 7px;
+            border: 2px solid #04449b;
+        }
+        #botao {
+            background-color: #04449b;
+            color: white;
+            padding: 7px;
+        }
+        img {
+            width: 400px;
+        }
+        .container {
+            text-align: center;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+        table {
+            margin: 20px auto;
+            border-collapse: collapse;
+            width: 80%;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+        th {
+            background-color: #04449b;
+            color: white;
+        }
+    </style>
+</head>
+<body> 
+    <div class="container">
+        <h1>Análise dos CRAs e CFA</h1>
+        <img src="https://blog-static.infra.grancursosonline.com.br/wp-content/uploads/2014/12/03160736/CFA-DF.jpg" alt="head image">
+        <h3>Portal de Transparência</h3>
+    </div>
+    <form id="analysisForm">
+        <input type="text" placeholder="Digite a sigla do Estado desejado" id="box" required><br><br>
+        <input type="text" placeholder="Informe o número do mês que deseja buscar" id="box2" required><br><br>
+        <input type="submit" value="Analisar" id="botao">
+    </form>
+    <div id="resultContainer" class="container"></div>
+
+    <script>
+        document.getElementById('analysisForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const stateCode = document.getElementById('box').value.trim();
+            const month = document.getElementById('box2').value.trim();
+            analyzeSites(stateCode, month);
+        });
+
+        function analyzeSites(stateCode, month) {
+            fetch('/analyze', {  // Mudei para o endpoint relativo
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ stateCode, month })
+            })
+            .then(response => response.json())
+            .then(results => {
+                displayResults(results);
+            })
+            .catch(error => {
+                console.error('Erro ao acessar o backend:', error);
+            });
+        }
+
+        function displayResults(results) {
+            const resultContainer = document.getElementById('resultContainer');
+            let tableHTML = '<table><tr><th>Site</th><th>Status</th></tr>';
+            results.forEach(result => {
+                tableHTML += `<tr><td>${result.keyword}</td><td>${result.status}</td></tr>`;
+            });
+            tableHTML += '</table>';
+            resultContainer.innerHTML = tableHTML;
+        }
+    </script>
+</body>
+</html>
